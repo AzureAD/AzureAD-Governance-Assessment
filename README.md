@@ -17,14 +17,15 @@ The assessment will return following reports:
 
 ## Contents
 
-| File/folder       | Description                                             |
-|-------------------|---------------------------------------------------------|
-| `build`           | Scripts to package, test, sign, and publish the module. |
-| `src`             | Module source code.                                     |
-| `.gitignore`      | Define what to ignore at commit time.                   |
-| `README.md`       | This README file.                                       |
-| `LICENSE`         | The license for the module.                             |
-| `CONTRIBUTING.md` | Contributing to the module                              |
+| File/folder         | Description                                             |
+|---------------------|---------------------------------------------------------|
+| `build`             | Scripts to package, test, sign, and publish the module. |
+| `src`               | Module source code.                                     |
+| `.gitignore`        | Define what to ignore at commit time.                   |
+| `README.md`         | This README file.                                       |
+| `LICENSE`           | The license for the module.                             |
+| `SECURITY.md`       | Security policy                                         |
+| `CODE_OF_CONDUCT.md`| Code of conduct                                         |
 
 ## Contributing
 
