@@ -1,6 +1,6 @@
 # Azure AD Governance Assessment
 
-**Please refer to the [Wiki](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki) for detail on how to [install](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki/1.-Installation) and use the scripts.**
+**Please refer to the [Wiki](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki/1.-Installation) for detail on how to [install](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki/1.-Installation) and use the scripts.**
 
 The Azure AD Governance Assessment module runs an analysis of guest users and their permissions in a tenant. 
 
