@@ -1,33 +1,37 @@
-# Project
+# Azure AD Governance Assessment
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+**Please refer to the [Wiki](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki) for detail on how to [install](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki/1.-Installation) and use the scripts.**
 
-As the maintainer of this project, please make a few updates:
+The Azure AD Governance Assessment module runs an analysis of guest users and their permissions in a tenant. 
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+The assessment will return following reports:
+
+- Tenant level settings
+- List of guest users, sign-in details, last sign-in, etc.
+- List of service principals
+- List of guest users in Microsoft Teams
+- Conditional Access policies excluding guest users
+- Application role assignments
+- External guest user sign-in and audit logs
+- Directory roles assigned to guest users
+
+## Contents
+
+| File/folder       | Description                                             |
+|-------------------|---------------------------------------------------------|
+| `build`           | Scripts to package, test, sign, and publish the module. |
+| `src`             | Module source code.                                     |
+| `.gitignore`      | Define what to ignore at commit time.                   |
+| `README.md`       | This README file.                                       |
+| `LICENSE`         | The license for the module.                             |
+| `CONTRIBUTING.md` | Contributing to the module                              |
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+When you submit a pull request, a CLA bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This project has adopted the Microsoft Open Source Code of Conduct. For more information see the Code of Conduct FAQ or contact opencode@microsoft.com with any additional questions or comments.
 
-## Trademarks
-
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft 
-trademarks or logos is subject to and must follow 
-[Microsoft's Trademark & Brand Guidelines](https://www.microsoft.com/en-us/legal/intellectualproperty/trademarks/usage/general).
-Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship.
-Any use of third-party trademarks or logos are subject to those third-party's policies.
+For more detailed guidance and recommendations for contributing, see the page for contributing.
