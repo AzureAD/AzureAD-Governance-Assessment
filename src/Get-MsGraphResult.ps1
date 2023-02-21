@@ -2,16 +2,16 @@
 .SYNOPSIS
     Query Microsoft Graph API
 .EXAMPLE
-    PS C:\>Get-MsGraphResults 'users'
+    PS C:\>Get-MsGraphResult 'users'
     Return query results for first page of users.
 .EXAMPLE
-    PS C:\>Get-MsGraphResults 'users' -ApiVersion beta
+    PS C:\>Get-MsGraphResult 'users' -ApiVersion beta
     Return query results for all users using the beta API.
 .EXAMPLE
-    PS C:\>Get-MsGraphResults 'users' -UniqueId 'user1@domain.com','user2@domain.com' -Select id,userPrincipalName,displayName
+    PS C:\>Get-MsGraphResult 'users' -UniqueId 'user1@domain.com','user2@domain.com' -Select id,userPrincipalName,displayName
     Return id, userPrincipalName, and displayName for user1@domain.com and user2@domain.com.
 #>
-function Get-MsGraphResults {
+function Get-MsGraphResult {
     [CmdletBinding()]
     [OutputType([PSCustomObject])]
     param (
@@ -144,7 +144,7 @@ function Get-MsGraphResults {
                 $indexEnd = [System.Math]::Min($iRequest + $BatchSize - 1, $listRequests.Count - 1)
                 $jsonRequests = New-Object psobject -Property @{ requests = $listRequests[$iRequest..$indexEnd] } | ConvertTo-Json -Depth 5
                 Write-Debug $jsonRequests
-                
+
                 [hashtable] $resultsBatch = Invoke-MgGraphRequest -Method POST -Uri $uriQueryEndpoint.Uri.AbsoluteUri -Body $jsonRequests
                 [hashtable[]] $resultsBatch = $resultsBatch.responses | Sort-Object -Property { [int]$_.id }
 

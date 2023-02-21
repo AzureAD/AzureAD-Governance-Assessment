@@ -40,15 +40,15 @@ function Invoke-MSGovernanceDataCollection {
     }
 
     process {
-        Write-Host 'Connecting to Microsoft Graph...'
+        Write-Output 'Connecting to Microsoft Graph...'
         #Connect-MgGraph -TenantId $TenantId -Scopes 'Directory.AccessAsUser.All'
         Connect-MgGraph -TenantId $TenantId -Scopes 'Organization.Read.All', 'User.Read.All', 'Application.Read.All', 'RoleManagement.Read.All', 'AppRoleAssignment.ReadWrite.All', 'Policy.Read.All', 'AuditLog.Read.All', 'EntitlementManagement.Read.All' | Out-Null
-     
+
         ## Get Tenant Settings
         $MsGraphContextData = Get-MgContext
 
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $MsGraphContextData.TenantId) -Status 'Tenant Domains' -PercentComplete 0
-        $OrganizationData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri 'organization' -QueryParameters @{
+        $OrganizationData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri 'organization' -QueryParameters @{
             #'$select' = ('id', 'verifiedDomains') -join ','
         }
         $OrganizationData = $OrganizationData | ForEach-Object { [pscustomobject]$_ }
@@ -70,18 +70,18 @@ function Invoke-MSGovernanceDataCollection {
 
         ## Get SharePoint Settings Data
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $InitialTenantDomain) -Status 'SharePoint Online Settings' -PercentComplete 5
-        Write-Host 'Connecting to SharePoint Online Admin PowerShell...'
+        Write-Output 'Connecting to SharePoint Online Admin PowerShell...'
         Connect-SPOService -Url ('https://{0}-admin.sharepoint.com/' -f $TenantName)
         $OutputPath = Join-Path $OutputDirectory 'SpoSettings.xml'
         $SpoSettingsData = Get-SPOTenant
         $SpoSettingsData | Export-Clixml -Path $OutputPath -Force
-        
+
 
         ## Get Teams Settings Data
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $InitialTenantDomain) -Status 'Microsoft Teams Settings' -PercentComplete 10
         $OutputPath = Join-Path $OutputDirectory 'TeamsSettings.xml'
         try {
-            Write-Host 'Connecting to Microsoft Teams Admin PowerShell...'
+            Write-Output 'Connecting to Microsoft Teams Admin PowerShell...'
             Connect-MicrosoftTeams
             #$CsSession = New-CsOnlineSession -OverrideAdminDomain $InitialTenantDomain
             $TeamsSettingsData = Get-CsTeamsClientConfiguration
@@ -91,13 +91,13 @@ function Invoke-MSGovernanceDataCollection {
             Disconnect-MicrosoftTeams
             #Remove-PSSession $CsSession
         }
-        $TeamsSettingsData | Export-Clixml -Path $OutputPath -Force 
+        $TeamsSettingsData | Export-Clixml -Path $OutputPath -Force
 
-        
+
         ## Get Entitlement Management Settings Data
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $InitialTenantDomain) -Status 'Entitlement Management Settings' -PercentComplete 15
         $OutputPath = Join-Path $OutputDirectory 'ElmSettings.xml'
-        $ElmSettingsData = Get-MsGraphResults -ApiVersion beta -RelativeUri 'identityGovernance/entitlementManagement/settings' -Select (('externalUserLifecycleAction', 'daysUntilExternalUserDeletedAfterBlocked') -join ',')
+        $ElmSettingsData = Get-MsgraphResult -ApiVersion beta -RelativeUri 'identityGovernance/entitlementManagement/settings' -Select (('externalUserLifecycleAction', 'daysUntilExternalUserDeletedAfterBlocked') -join ',')
         $ElmSettingsData | Export-Clixml -Path $OutputPath -Force
 
 
@@ -105,7 +105,7 @@ function Invoke-MSGovernanceDataCollection {
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $InitialTenantDomain) -Status 'Users' -PercentComplete 20
         $OutputPath = Join-Path $OutputDirectory 'Users.xml'
         [string[]] $SourceAttributes = 'id', 'userPrincipalName', 'userType', 'accountEnabled', 'displayName', 'givenName', 'surname', 'mail', 'jobTitle', 'companyName', 'country', 'creationType', 'externalUserState', 'externalUserStateChangeDateTime', 'createdDateTime', 'deletedDateTime', 'refreshTokensValidFromDateTime', 'signInSessionsValidFromDateTime', 'signInActivity'
-        $UserData = Get-MsGraphResults -ApiVersion beta -RelativeUri 'users' -Select ($SourceAttributes -join ',') -QueryParameters @{
+        $UserData = Get-MsgraphResult -ApiVersion beta -RelativeUri 'users' -Select ($SourceAttributes -join ',') -QueryParameters @{
             '$count'  = 'true'
             '$filter' = 'userType eq ''Guest'' or endsWith(userPrincipalName, ''#EXT#@{0}'')' -f $InitialTenantDomain
         }
@@ -117,7 +117,7 @@ function Invoke-MSGovernanceDataCollection {
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $InitialTenantDomain) -Status 'Service Principals' -PercentComplete 30
         $OutputPath = Join-Path $OutputDirectory 'ServicePrincipals.xml'
         [string[]] $SourceAttributes = 'id', 'appId', 'servicePrincipalType', 'accountEnabled', 'displayName', 'appRoles', 'appRoleAssignmentRequired', 'appOwnerOrganizationId', 'tags', 'createdDateTime', 'deletedDateTime'
-        $ServicePrincipalData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri 'servicePrincipals' -Select ($SourceAttributes -join ',') -QueryParameters @{
+        $ServicePrincipalData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri 'servicePrincipals' -Select ($SourceAttributes -join ',') -QueryParameters @{
             #'$count'  = 'true'
             #'$filter' = 'appOwnerOrganizationId ne ''f8cdef31-a31e-4b4a-93e4-5f571e91255a'''
         }
@@ -133,7 +133,7 @@ function Invoke-MSGovernanceDataCollection {
             $listDirectoryRoleAssignmentData = New-Object System.Collections.Generic.List[hashtable]
             Use-Progress -InputObjects $UserData -Activity "User Processing" -Property userPrincipalName -ScriptBlock {
                 $User = $args[0]
-                [hashtable[]] $DirectoryRoleAssignmentData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri ('users/{0}/memberOf' -f $User.id) -Select ($SourceAttributes -join ',')
+                [hashtable[]] $DirectoryRoleAssignmentData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri ('users/{0}/memberOf' -f $User.id) -Select ($SourceAttributes -join ',')
                 foreach ($DirectoryRoleAssignment in $DirectoryRoleAssignmentData) {
                     $DirectoryRoleAssignment.Add('userId', $User.id)
                     $DirectoryRoleAssignment.Add('userPrincipalName', $User.userPrincipalName)
@@ -155,7 +155,7 @@ function Invoke-MSGovernanceDataCollection {
             $listAppRoleAssignmentData = New-Object System.Collections.Generic.List[hashtable]
             Use-Progress -InputObjects $UserData -Activity "User Processing" -Property userPrincipalName -ScriptBlock {
                 $User = $args[0]
-                [hashtable[]] $AppRoleAssignmentData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri ('users/{0}/appRoleAssignments' -f $User.id)
+                [hashtable[]] $AppRoleAssignmentData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri ('users/{0}/appRoleAssignments' -f $User.id)
                 foreach ($AppRoleAssignment in $AppRoleAssignmentData) {
                     $AppRoleAssignment.Add('userId', $User.id)
                     $AppRoleAssignment.Add('userPrincipalName', $User.userPrincipalName)
@@ -177,7 +177,7 @@ function Invoke-MSGovernanceDataCollection {
             $listTeamMembershipData = New-Object System.Collections.Generic.List[hashtable]
             Use-Progress -InputObjects $UserData -Activity "User Processing" -Property userPrincipalName -ScriptBlock {
                 $User = $args[0]
-                [hashtable[]] $TeamMembershipData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri ('users/{0}/joinedTeams' -f $User.id) -Select ($SourceAttributes -join ',')
+                [hashtable[]] $TeamMembershipData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri ('users/{0}/joinedTeams' -f $User.id) -Select ($SourceAttributes -join ',')
                 foreach ($Team in $TeamMembershipData) {
                     $Team.Add('userId', $User.id)
                     $Team.Add('userPrincipalName', $User.userPrincipalName)
@@ -194,11 +194,11 @@ function Invoke-MSGovernanceDataCollection {
         ## Get Conditional Access Data
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $InitialTenantDomain) -Status 'Conditional Access Policies' -PercentComplete 70
         $OutputPath = Join-Path $OutputDirectory 'ConditionalAccessPolicies.xml'
-        $ConditionalAccessPolicyData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri 'identity/conditionalAccess/policies'
+        $ConditionalAccessPolicyData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri 'identity/conditionalAccess/policies'
         $ConditionalAccessPolicyData = $ConditionalAccessPolicyData | ForEach-Object { [pscustomobject]$_ }
         $ConditionalAccessPolicyData | Export-Clixml -Path $OutputPath -Force
 
-        
+
         ## Get User Signin Data
         Write-Progress -Id 0 -Activity ('Microsoft Governance Workshop Data Collection - {0}' -f $InitialTenantDomain) -Status 'User Sign-in Logs' -PercentComplete 80
         if (!$Prompt -or (Write-HostPrompt "Confirm" "Do you want to collect user sign-in log data?" -DefaultChoice 0 -Choices $PromptChoices) -eq 0) {
@@ -206,7 +206,7 @@ function Invoke-MSGovernanceDataCollection {
             $listSignInData = New-Object System.Collections.Generic.List[hashtable]
             Use-Progress -InputObjects $UserData -Activity "User Processing" -Property userPrincipalName -ScriptBlock {
                 $User = $args[0]
-                [hashtable[]] $SignInData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri 'auditLogs/signIns' -Filter ("userId eq '{0}'" -f $User.id)
+                [hashtable[]] $SignInData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri 'auditLogs/signIns' -Filter ("userId eq '{0}'" -f $User.id)
                 if ($SignInData) { $listSignInData.AddRange($SignInData) }
             }
             $SignInData = $listSignInData | ForEach-Object { [pscustomobject]$_ }
@@ -221,7 +221,7 @@ function Invoke-MSGovernanceDataCollection {
             $listAuditData = New-Object System.Collections.Generic.List[hashtable]
             Use-Progress -InputObjects $UserData -Activity "User Processing" -Property userPrincipalName -ScriptBlock {
                 $User = $args[0]
-                [hashtable[]] $AuditData = Get-MsGraphResults -ApiVersion 'v1.0' -RelativeUri 'auditLogs/directoryaudits' -Filter ("initiatedBy/user/id eq '{0}'" -f $User.id)
+                [hashtable[]] $AuditData = Get-MsgraphResult -ApiVersion 'v1.0' -RelativeUri 'auditLogs/directoryaudits' -Filter ("initiatedBy/user/id eq '{0}'" -f $User.id)
                 if ($AuditData) { $listAuditData.AddRange($AuditData) }
             }
             $AuditData = $listAuditData | ForEach-Object { [pscustomobject]$_ }
@@ -239,7 +239,6 @@ function Invoke-MSGovernanceDataCollection {
             Export-WorkshopReports -DataDirectory $OutputDirectory
         }
     }
-    
     end {
         Disconnect-MgGraph
         Disconnect-SPOService

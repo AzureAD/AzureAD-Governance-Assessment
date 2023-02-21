@@ -1,39 +1,19 @@
 # Azure AD Governance Assessment
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+**Please refer to the [Wiki](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki) for detail on how to [install](https://github.com/AzureAD/AzureAD-Governance-Assessment/wiki/1.-Installation) and use the scripts.**
 
-As the maintainer of this project, please make a few updates:
+The Azure AD Governance Assessment module runs an analysis of guest users and their permissions in a tenant. 
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+The assessment will return following reports:
 
-## Prerequisites
-
-The module has a dependency on the following three modules: 
-
-- Microsoft.Graph.Authentication
-- MicrosoftTeams
-- Microsoft.Online.SharePoint.PowerShell
-
-To check whether they are installed, run the following
-
-```powershell
-get-module Microsoft.Graph.Authentication -ListAvailable  #repeat for the other modules
-```
-
-To install the latest module run the following (as an admin)
-
-```powershell
-install-module Microsoft.Graph.Authentication -scope allusers
-```
-
-
-## Run data collection
-
-To do.
+- Tenant level settings
+- List of guest users, sign-in details, last sign-in, etc.
+- List of service principals
+- List of guest users in Microsoft Teams
+- Conditional Access policies excluding guest users
+- Application role assignments
+- External guest user sign-in and audit logs
+- Directory roles assigned to guest users
 
 ## Contents
 
