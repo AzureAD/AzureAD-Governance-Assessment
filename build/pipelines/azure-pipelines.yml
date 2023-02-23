@@ -7,14 +7,18 @@
 trigger:
 - main
 
-pool:
-  vmImage: PROD
+variables:
+  - name: vmImage
+    value: PROD
 
 stages:
   - stage: preparation
     displayName: prepare for signing
     jobs:
-    - job: ESRPsign
+    - job: SetupESRPsign
+      displayName: setup ESRP sign
+      pool:
+        $(vmImage)
       steps:
       - task: NuGetCommand@2
         displayName: install Esrp client
