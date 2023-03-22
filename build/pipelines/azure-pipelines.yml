@@ -20,6 +20,8 @@ stages:
       pool:
         $(vmImage)
       steps:
+      - task: EsrpClientTool@1
+        displayName: install ESRP Client
       - task: EsrpCodeSigning@2
         inputs:
           ConnectedServiceName: 'ESRP'
